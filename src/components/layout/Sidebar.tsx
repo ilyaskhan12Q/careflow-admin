@@ -16,6 +16,7 @@ import {
   Building2,
   FileText,
   ShieldCheck,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, AppRole } from "@/hooks/useAuth";
@@ -43,6 +44,7 @@ const systemNavItems: NavItem[] = [
   { icon: FileText, label: "E-Results", path: "/e-results", allowedRoles: ["admin", "doctor", "lab_technician"] },
   { icon: Database, label: "Backup", path: "/backup", allowedRoles: ["admin"] },
   { icon: ShieldCheck, label: "Admin Panel", path: "/admin", allowedRoles: ["admin"] },
+  { icon: Users, label: "User Management", path: "/user-management", allowedRoles: ["admin"] },
   { icon: Settings, label: "Settings", path: "/settings", allowedRoles: ["admin"] },
 ];
 

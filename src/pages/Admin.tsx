@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Users,
   Shield,
@@ -24,6 +25,7 @@ import {
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SystemModule {
   name: string;
@@ -149,8 +151,53 @@ const statusIcons = {
 };
 
 const Admin = () => {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalPatients: 0,
+    totalDoctors: 0,
+    totalAppointments: 0,
+  });
+  
   const activeModules = modules.filter((m) => m.status === "active").length;
   const warningModules = modules.filter((m) => m.status === "warning").length;
+
+  const fetchStats = async () => {
+    try {
+      const [usersRes, patientsRes, doctorsRes, appointmentsRes] = await Promise.all([
+        supabase.from("user_roles").select("id", { count: "exact", head: true }),
+        supabase.from("patients").select("id", { count: "exact", head: true }),
+        supabase.from("doctors").select("id", { count: "exact", head: true }),
+        supabase.from("appointments").select("id", { count: "exact", head: true }),
+      ]);
+
+      setStats({
+        totalUsers: usersRes.count || 0,
+        totalPatients: patientsRes.count || 0,
+        totalDoctors: doctorsRes.count || 0,
+        totalAppointments: appointmentsRes.count || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+
+    // Set up real-time subscriptions for all relevant tables
+    const channel = supabase
+      .channel("admin-stats")
+      .on("postgres_changes", { event: "*", schema: "public", table: "user_roles" }, fetchStats)
+      .on("postgres_changes", { event: "*", schema: "public", table: "patients" }, fetchStats)
+      .on("postgres_changes", { event: "*", schema: "public", table: "doctors" }, fetchStats)
+      .on("postgres_changes", { event: "*", schema: "public", table: "appointments" }, fetchStats)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <DashboardLayout
@@ -173,10 +220,8 @@ const Admin = () => {
             variant="primary"
           />
           <StatCard
-            title="Active Users"
-            value="128"
-            change={15}
-            changeLabel="online now"
+            title="Total Users"
+            value={stats.totalUsers.toString()}
             icon={<Users className="h-6 w-6" />}
             variant="info"
           />
@@ -303,19 +348,35 @@ const Admin = () => {
           <div className="bg-card rounded-xl border border-border/50 p-6">
             <h3 className="font-display font-semibold text-foreground mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2">
+              <Button
+                variant="outline"
+                className="h-auto py-4 flex-col gap-2"
+                onClick={() => navigate("/user-management")}
+              >
                 <Users className="h-5 w-5" />
                 <span>Manage Users</span>
               </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2">
+              <Button
+                variant="outline"
+                className="h-auto py-4 flex-col gap-2"
+                onClick={() => navigate("/settings")}
+              >
                 <Shield className="h-5 w-5" />
                 <span>Security</span>
               </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2">
+              <Button
+                variant="outline"
+                className="h-auto py-4 flex-col gap-2"
+                onClick={() => navigate("/backup")}
+              >
                 <Database className="h-5 w-5" />
                 <span>Database</span>
               </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2">
+              <Button
+                variant="outline"
+                className="h-auto py-4 flex-col gap-2"
+                onClick={() => navigate("/settings")}
+              >
                 <Settings className="h-5 w-5" />
                 <span>Settings</span>
               </Button>
