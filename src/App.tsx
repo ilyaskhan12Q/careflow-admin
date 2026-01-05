@@ -16,6 +16,8 @@ import PharmacyIO from "./pages/PharmacyIO";
 import EResults from "./pages/EResults";
 import Backup from "./pages/Backup";
 import Admin from "./pages/Admin";
+import UserManagement from "./pages/UserManagement";
+import SystemSettings from "./pages/SystemSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +41,8 @@ const App = () => (
           <Route path="/e-results" element={<ProtectedRoute allowedRoles={["admin", "doctor", "lab_technician"]}><EResults /></ProtectedRoute>} />
           <Route path="/backup" element={<ProtectedRoute allowedRoles={["admin"]}><Backup /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><Admin /></ProtectedRoute>} />
+          <Route path="/user-management" element={<ProtectedRoute allowedRoles={["admin"]}><UserManagement /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute allowedRoles={["admin"]}><SystemSettings /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
