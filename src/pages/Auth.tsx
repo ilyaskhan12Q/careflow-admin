@@ -146,8 +146,11 @@ export default function Auth() {
       return;
     }
 
-    // Assign role to the new user
-    if (authData.user) {
+    // Assign role to the new user - wait for session to be established
+    if (authData.user && authData.session) {
+      // Small delay to ensure session is fully established
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
       const { error: roleError } = await supabase.from("user_roles").insert({
         user_id: authData.user.id,
         role: signupForm.role,
@@ -155,6 +158,11 @@ export default function Auth() {
 
       if (roleError) {
         console.error("Role assignment error:", roleError);
+        toast({
+          title: "Warning",
+          description: "Account created but role assignment failed. Please contact admin.",
+          variant: "destructive",
+        });
       }
     }
 
