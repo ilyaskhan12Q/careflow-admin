@@ -55,7 +55,7 @@ const modules: SystemModule[] = [
     path: "/finance",
     status: "active",
     stats: [
-      { label: "Revenue Today", value: "$12.5K" },
+      { label: "Revenue Today", value: "PKR 1.25M" },
       { label: "Pending", value: "23" },
     ],
   },

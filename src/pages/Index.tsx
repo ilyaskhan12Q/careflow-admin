@@ -39,7 +39,7 @@ const Index = () => {
           />
           <StatCard
             title="Revenue"
-            value="$48.5K"
+            value="PKR 4.85M"
             change={23.1}
             changeLabel="this week"
             icon={<DollarSign className="h-6 w-6" />}

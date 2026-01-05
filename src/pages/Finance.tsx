@@ -129,7 +129,7 @@ const Finance = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Total Revenue"
-            value={`$${totalRevenue.toLocaleString()}`}
+            value={`PKR ${totalRevenue.toLocaleString()}`}
             change={23.1}
             changeLabel="this month"
             icon={<DollarSign className="h-6 w-6" />}
@@ -137,13 +137,13 @@ const Finance = () => {
           />
           <StatCard
             title="Pending Payments"
-            value={`$${pendingAmount.toLocaleString()}`}
+            value={`PKR ${pendingAmount.toLocaleString()}`}
             icon={<Clock className="h-6 w-6" />}
             variant="warning"
           />
           <StatCard
             title="Overdue"
-            value={`$${overdueAmount.toLocaleString()}`}
+            value={`PKR ${overdueAmount.toLocaleString()}`}
             icon={<AlertCircle className="h-6 w-6" />}
             variant="default"
           />
@@ -239,7 +239,7 @@ const Finance = () => {
                             </td>
                             <td className="px-4 py-4">
                               <p className="font-medium text-foreground">
-                                ${invoice.amount.toLocaleString()}
+                                PKR {invoice.amount.toLocaleString()}
                               </p>
                             </td>
                             <td className="px-4 py-4">
@@ -312,8 +312,8 @@ const Finance = () => {
                             <tr key={i} className="border-t border-border">
                               <td className="px-3 py-2">{item.description}</td>
                               <td className="text-right px-3 py-2">{item.quantity}</td>
-                              <td className="text-right px-3 py-2">${item.rate}</td>
-                              <td className="text-right px-3 py-2">${item.total}</td>
+                              <td className="text-right px-3 py-2">PKR {item.rate}</td>
+                              <td className="text-right px-3 py-2">PKR {item.total}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -323,15 +323,15 @@ const Finance = () => {
                     <div className="space-y-2 border-t border-border pt-4">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span>${selectedInvoice.amount.toLocaleString()}</span>
+                        <span>PKR {selectedInvoice.amount.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Tax (0%)</span>
-                        <span>$0.00</span>
+                        <span>PKR 0</span>
                       </div>
                       <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
                         <span>Total</span>
-                        <span className="text-primary">${selectedInvoice.amount.toLocaleString()}</span>
+                        <span className="text-primary">PKR {selectedInvoice.amount.toLocaleString()}</span>
                       </div>
                     </div>
 
