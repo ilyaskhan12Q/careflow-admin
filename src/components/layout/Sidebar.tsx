@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Stethoscope,
@@ -15,40 +15,70 @@ import {
   ChevronRight,
   Building2,
   FileText,
-  Users,
   ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth, AppRole } from "@/hooks/useAuth";
 
 interface NavItem {
   icon: React.ElementType;
   label: string;
   path: string;
   badge?: number;
+  allowedRoles?: AppRole[];
 }
 
 const mainNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: Stethoscope, label: "Doctor Portal", path: "/doctor-portal" },
-  { icon: DollarSign, label: "Finance & Billing", path: "/finance" },
-  { icon: MessageSquare, label: "Chat & Prescription", path: "/chat", badge: 3 },
-  { icon: Pill, label: "Pharmacy", path: "/pharmacy" },
-  { icon: FlaskConical, label: "Laboratory", path: "/laboratory" },
-  { icon: Activity, label: "Diagnostics", path: "/diagnostics" },
-  { icon: Building2, label: "Indoor/Outdoor", path: "/pharmacy-io" },
+  { icon: Stethoscope, label: "Doctor Portal", path: "/doctor-portal", allowedRoles: ["admin", "doctor"] },
+  { icon: DollarSign, label: "Finance & Billing", path: "/finance", allowedRoles: ["admin", "receptionist"] },
+  { icon: MessageSquare, label: "Chat & Prescription", path: "/chat", allowedRoles: ["admin", "doctor"], badge: 3 },
+  { icon: Pill, label: "Pharmacy", path: "/pharmacy", allowedRoles: ["admin", "pharmacist"] },
+  { icon: FlaskConical, label: "Laboratory", path: "/laboratory", allowedRoles: ["admin", "lab_technician"] },
+  { icon: Activity, label: "Diagnostics", path: "/diagnostics", allowedRoles: ["admin", "doctor", "lab_technician"] },
+  { icon: Building2, label: "Indoor/Outdoor", path: "/pharmacy-io", allowedRoles: ["admin", "pharmacist"] },
 ];
 
 const systemNavItems: NavItem[] = [
-  { icon: FileText, label: "E-Results", path: "/e-results" },
-  { icon: Database, label: "Backup", path: "/backup" },
-  { icon: Users, label: "Users", path: "/users" },
-  { icon: ShieldCheck, label: "Admin Panel", path: "/admin" },
-  { icon: Settings, label: "Settings", path: "/settings" },
+  { icon: FileText, label: "E-Results", path: "/e-results", allowedRoles: ["admin", "doctor", "lab_technician"] },
+  { icon: Database, label: "Backup", path: "/backup", allowedRoles: ["admin"] },
+  { icon: ShieldCheck, label: "Admin Panel", path: "/admin", allowedRoles: ["admin"] },
+  { icon: Settings, label: "Settings", path: "/settings", allowedRoles: ["admin"] },
 ];
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, roles, signOut, hasAnyRole } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
+  // Filter nav items based on user roles
+  const filterNavItems = (items: NavItem[]) => {
+    return items.filter((item) => {
+      if (!item.allowedRoles) return true; // No role restriction = everyone can see
+      return hasAnyRole(item.allowedRoles);
+    });
+  };
+
+  const filteredMainNav = filterNavItems(mainNavItems);
+  const filteredSystemNav = filterNavItems(systemNavItems);
+
+  // Get user initials
+  const getUserInitials = () => {
+    if (!user?.email) return "U";
+    return user.email.slice(0, 2).toUpperCase();
+  };
+
+  // Get role display name
+  const getRoleDisplay = () => {
+    if (roles.length === 0) return "No role assigned";
+    return roles.map(r => r.replace("_", " ")).join(", ");
+  };
 
   const NavLink = ({ item }: { item: NavItem }) => {
     const isActive = location.pathname === item.path;
@@ -117,21 +147,23 @@ export const Sidebar = () => {
               Main Menu
             </p>
           )}
-          {mainNavItems.map((item) => (
+          {filteredMainNav.map((item) => (
             <NavLink key={item.path} item={item} />
           ))}
         </div>
 
-        <div className="mt-6 pt-6 border-t border-sidebar-border space-y-1">
-          {!collapsed && (
-            <p className="px-4 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider mb-2">
-              System
-            </p>
-          )}
-          {systemNavItems.map((item) => (
-            <NavLink key={item.path} item={item} />
-          ))}
-        </div>
+        {filteredSystemNav.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-sidebar-border space-y-1">
+            {!collapsed && (
+              <p className="px-4 text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider mb-2">
+                System
+              </p>
+            )}
+            {filteredSystemNav.map((item) => (
+              <NavLink key={item.path} item={item} />
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* Collapse Button */}
@@ -156,20 +188,37 @@ export const Sidebar = () => {
           collapsed && "justify-center"
         )}>
           <div className="w-10 h-10 rounded-full bg-sidebar-accent flex items-center justify-center shrink-0">
-            <span className="text-sm font-medium text-sidebar-foreground">AD</span>
+            <span className="text-sm font-medium text-sidebar-foreground">{getUserInitials()}</span>
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">Admin User</p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">admin@medicare.com</p>
+              <p className="text-sm font-medium text-sidebar-foreground truncate">
+                {user?.email?.split("@")[0] || "User"}
+              </p>
+              <p className="text-xs text-sidebar-foreground/60 truncate capitalize">
+                {getRoleDisplay()}
+              </p>
             </div>
           )}
           {!collapsed && (
-            <button className="p-2 hover:bg-sidebar-accent rounded-lg transition-colors">
+            <button 
+              onClick={handleSignOut}
+              className="p-2 hover:bg-sidebar-accent rounded-lg transition-colors"
+              title="Sign out"
+            >
               <LogOut className="h-4 w-4 text-sidebar-foreground/60" />
             </button>
           )}
         </div>
+        {collapsed && (
+          <button 
+            onClick={handleSignOut}
+            className="mt-3 p-2 hover:bg-sidebar-accent rounded-lg transition-colors w-full flex items-center justify-center"
+            title="Sign out"
+          >
+            <LogOut className="h-4 w-4 text-sidebar-foreground/60" />
+          </button>
+        )}
       </div>
     </aside>
   );
