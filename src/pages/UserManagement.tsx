@@ -57,6 +57,9 @@ const UserManagement = () => {
   const [editUser, setEditUser] = useState<UserWithRole | null>(null);
   const [newRole, setNewRole] = useState<AppRole>("patient");
   const [deleteUser, setDeleteUser] = useState<UserWithRole | null>(null);
+  const [addRoleDialogOpen, setAddRoleDialogOpen] = useState(false);
+  const [addRoleUserId, setAddRoleUserId] = useState("");
+  const [addRoleRole, setAddRoleRole] = useState<AppRole>("patient");
   const { toast } = useToast();
 
   const fetchUsers = async () => {
@@ -182,6 +185,41 @@ const UserManagement = () => {
     }
   };
 
+  const handleAddRole = async () => {
+    if (!addRoleUserId.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a user ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("user_roles")
+        .insert({ user_id: addRoleUserId, role: addRoleRole });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Role ${addRoleRole} assigned successfully`,
+      });
+      setAddRoleDialogOpen(false);
+      setAddRoleUserId("");
+      setAddRoleRole("patient");
+      fetchUsers();
+    } catch (error: any) {
+      console.error("Error adding role:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to assign role",
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -221,6 +259,10 @@ const UserManagement = () => {
               <SelectItem value="patient">Patient</SelectItem>
             </SelectContent>
           </Select>
+          <Button onClick={() => setAddRoleDialogOpen(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Role
+          </Button>
         </div>
 
         {/* Users Table */}
@@ -364,6 +406,53 @@ const UserManagement = () => {
             </Button>
             <Button variant="destructive" onClick={handleDeleteUser}>
               Remove Role
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Role Dialog */}
+      <Dialog open={addRoleDialogOpen} onOpenChange={setAddRoleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add User Role</DialogTitle>
+            <DialogDescription>
+              Assign a role to a user by entering their user ID
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">User ID</label>
+              <Input
+                placeholder="Enter user ID (UUID)"
+                value={addRoleUserId}
+                onChange={(e) => setAddRoleUserId(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Role</label>
+              <Select value={addRoleRole} onValueChange={(v) => setAddRoleRole(v as AppRole)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="doctor">Doctor</SelectItem>
+                  <SelectItem value="pharmacist">Pharmacist</SelectItem>
+                  <SelectItem value="lab_technician">Lab Technician</SelectItem>
+                  <SelectItem value="receptionist">Receptionist</SelectItem>
+                  <SelectItem value="patient">Patient</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddRoleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddRole}>
+              <Shield className="h-4 w-4 mr-2" />
+              Assign Role
             </Button>
           </DialogFooter>
         </DialogContent>
