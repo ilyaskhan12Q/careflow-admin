@@ -1,4 +1,5 @@
 import { MoreHorizontal, Eye, FileText, MessageSquare } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -90,8 +91,8 @@ export const RecentPatients = () => {
             <h3 className="font-display font-semibold text-foreground">Recent Patients</h3>
             <p className="text-sm text-muted-foreground">Latest patient activities</p>
           </div>
-          <Button variant="outline" size="sm">
-            View All
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/doctor-portal">View All</Link>
           </Button>
         </div>
       </div>
