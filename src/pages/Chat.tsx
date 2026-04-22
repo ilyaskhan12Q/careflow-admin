@@ -19,6 +19,7 @@ import {
   FlaskConical,
   MessageSquare,
   Loader2,
+  ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChat, ChatMessage, ChatChannel } from "@/hooks/useChat";
@@ -137,7 +138,7 @@ const Chat = () => {
       >
         <div
           className={cn(
-            "max-w-[70%] rounded-2xl px-4 py-3",
+            "max-w-[85%] sm:max-w-[70%] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 break-words",
             isOwnMessage
               ? "bg-primary text-primary-foreground rounded-tr-sm"
               : "bg-muted rounded-tl-sm"
@@ -222,9 +223,12 @@ const Chat = () => {
       title="Chat & Prescription"
       subtitle="Communicate with patients, pharmacy, and laboratory"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-180px)] animate-fade-in">
-        {/* Conversation List */}
-        <div className="lg:col-span-1 bg-card rounded-xl border border-border/50 overflow-hidden flex flex-col">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 h-[calc(100vh-160px)] lg:h-[calc(100vh-180px)] animate-fade-in">
+        {/* Conversation List - hidden on mobile when a chat is open */}
+        <div className={cn(
+          "lg:col-span-1 bg-card rounded-xl border border-border/50 overflow-hidden flex-col",
+          selectedChannel ? "hidden lg:flex" : "flex"
+        )}>
           <div className="p-4 border-b border-border space-y-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -309,23 +313,35 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* Chat Area */}
-        <div className="lg:col-span-3 bg-card rounded-xl border border-border/50 overflow-hidden flex flex-col">
+        {/* Chat Area - hidden on mobile when no chat selected */}
+        <div className={cn(
+          "lg:col-span-3 bg-card rounded-xl border border-border/50 overflow-hidden flex-col",
+          selectedChannel ? "flex" : "hidden lg:flex"
+        )}>
           {selectedChannel ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              <div className="p-3 sm:p-4 border-b border-border flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="lg:hidden shrink-0 -ml-1"
+                    onClick={() => setSelectedChannel(null)}
+                    aria-label="Back"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </Button>
                   <div
                     className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center",
+                      "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
                       getChannelBadge(selectedChannel.type)
                     )}
                   >
                     {getChannelIcon(selectedChannel.type)}
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground truncate">
                       {getParticipantName(selectedChannel)}
                     </p>
                     <p className="text-xs text-muted-foreground capitalize">
@@ -333,11 +349,11 @@ const Chat = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon">
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
                     <Phone className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
                     <Video className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="icon">
@@ -364,10 +380,10 @@ const Chat = () => {
               </div>
 
               {/* Input Area */}
-              <div className="p-4 border-t border-border">
-                <div className="flex items-end gap-3">
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" className="shrink-0">
+              <div className="p-3 sm:p-4 border-t border-border">
+                <div className="flex items-end gap-2">
+                  <div className="flex gap-1 shrink-0">
+                    <Button variant="ghost" size="icon" className="shrink-0 hidden sm:inline-flex">
                       <Paperclip className="h-4 w-4" />
                     </Button>
                     <Button
@@ -393,7 +409,7 @@ const Chat = () => {
                     placeholder="Type your message..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    className="min-h-[44px] max-h-32 resize-none"
+                    className="min-h-[44px] max-h-32 resize-none flex-1"
                     rows={1}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {

@@ -5,21 +5,36 @@ import { Input } from "@/components/ui/input";
 interface HeaderProps {
   title: string;
   subtitle?: string;
+  onMobileMenuToggle?: () => void;
 }
 
-export const Header = ({ title, subtitle }: HeaderProps) => {
+export const Header = ({ title, subtitle, onMobileMenuToggle }: HeaderProps) => {
   return (
     <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border">
-      <div className="flex items-center justify-between h-16 px-6">
-        <div>
-          <h1 className="text-xl font-display font-bold text-foreground">{title}</h1>
-          {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
-          )}
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6 gap-3">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden shrink-0"
+            onClick={onMobileMenuToggle}
+            aria-label="Toggle menu"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl font-display font-bold text-foreground truncate">
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                {subtitle}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Search */}
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <div className="relative hidden md:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -28,17 +43,11 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
             />
           </div>
 
-          {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
               5
             </span>
-          </Button>
-
-          {/* Mobile Menu */}
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-5 w-5" />
           </Button>
         </div>
       </div>

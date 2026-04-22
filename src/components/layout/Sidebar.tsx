@@ -48,7 +48,12 @@ const systemNavItems: NavItem[] = [
   { icon: Settings, label: "Settings", path: "/settings", allowedRoles: ["admin"] },
 ];
 
-export const Sidebar = () => {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export const Sidebar = ({ mobileOpen = false, onMobileClose }: SidebarProps = {}) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -89,6 +94,7 @@ export const Sidebar = () => {
     return (
       <Link
         to={item.path}
+        onClick={() => onMobileClose?.()}
         className={cn(
           "sidebar-link group relative",
           isActive && "active"
@@ -115,10 +121,21 @@ export const Sidebar = () => {
   };
 
   return (
+    <>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={onMobileClose}
+          aria-hidden
+        />
+      )}
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-sidebar transition-all duration-300 flex flex-col",
-        collapsed ? "w-20" : "w-64"
+        "fixed left-0 top-0 z-40 h-screen bg-sidebar transition-transform duration-300 flex flex-col",
+        collapsed ? "lg:w-20" : "lg:w-64",
+        "w-64",
+        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}
     >
       {/* Logo */}
@@ -168,10 +185,10 @@ export const Sidebar = () => {
         )}
       </nav>
 
-      {/* Collapse Button */}
+      {/* Collapse Button - desktop only */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg hover:opacity-90 transition-opacity"
+        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-primary text-primary-foreground rounded-full items-center justify-center shadow-lg hover:opacity-90 transition-opacity"
       >
         {collapsed ? (
           <ChevronRight className="h-4 w-4" />
@@ -223,5 +240,6 @@ export const Sidebar = () => {
         )}
       </div>
     </aside>
+    </>
   );
 };
