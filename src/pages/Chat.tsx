@@ -222,9 +222,12 @@ const Chat = () => {
       title="Chat & Prescription"
       subtitle="Communicate with patients, pharmacy, and laboratory"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-180px)] animate-fade-in">
-        {/* Conversation List */}
-        <div className="lg:col-span-1 bg-card rounded-xl border border-border/50 overflow-hidden flex flex-col">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 h-[calc(100vh-160px)] lg:h-[calc(100vh-180px)] animate-fade-in">
+        {/* Conversation List - hidden on mobile when a chat is open */}
+        <div className={cn(
+          "lg:col-span-1 bg-card rounded-xl border border-border/50 overflow-hidden flex-col",
+          selectedChannel ? "hidden lg:flex" : "flex"
+        )}>
           <div className="p-4 border-b border-border space-y-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
