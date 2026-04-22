@@ -88,7 +88,7 @@ export const QuickActions = () => {
             key={action.label}
             to={action.path}
             className={cn(
-              "flex flex-col items-center gap-2 p-4 rounded-xl border border-border/50 bg-card transition-all duration-200 hover:shadow-lg hover:-translate-y-1 group"
+              "flex flex-col items-center gap-2 p-4 rounded-xl border border-border/50 bg-card transition-shadow duration-200 hover:shadow-lg group"
             )}
           >
             <div
