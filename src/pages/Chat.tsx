@@ -138,7 +138,7 @@ const Chat = () => {
       >
         <div
           className={cn(
-            "max-w-[70%] rounded-2xl px-4 py-3",
+            "max-w-[85%] sm:max-w-[70%] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 break-words",
             isOwnMessage
               ? "bg-primary text-primary-foreground rounded-tr-sm"
               : "bg-muted rounded-tl-sm"
